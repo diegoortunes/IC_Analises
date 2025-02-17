@@ -1,0 +1,32 @@
+### Baixar o GWAS e verificar sua estrutura e alterar caso necessário
+gunzip pgcAN2.2019-07.vcf.tsv.gz
+head pgcAN2.2019-07.vcf.tsv
+mv pgcAN2.2019-07.vcf.tsv gwas/
+grep -v ‘^##’ gwas/pgcAN2.2019-07.vcf.tsv > gwas/semhash_pgcAN2.2019-07.vcf.tsv
+gzip gwas/pgcAN2.2019-07.vcf.tsv
+cd gwas/
+head semhash_pgcAN2.2019-07.vcf.tsv
+### A ferramenta PRS-CS necessita que o GWAS usado como input contenha apenas colunas específicas
+awk ‘{print $3, $4, $5, $6, $7}’ semhash_pgcAN2.2019-07.vcf.tsv | tr ” ” “\t”> PGC_AN_2019.txt
+#### Essas colunas devem estar nomeadas da seguinte maneira SNP A1 A2 BETA SE
+### ĨMPORTANTE: Antes de fazer essa alteração, atente-se ao fato de que o GWAS de AN do PGC, A1 é o alelo alternativo e A2 é alelo referência
+nano PGC_AN_2019.txt
+
+###### Rodando PRS-CS para os grupos de ED utilizando o painel de desequilíbrio de ligação europeu
+
+nohup python3 ../Diego/PRScs/test_data/PRScs.py --ref_dir=./PRScs/ldblk_1kg_eur --bim_prefix=./BHRC_Probands_Final --sst_file=./gwas/PGC_AN_arrumadoA1_2019.txt --n_gwas=72517 --out_dir=./prscsAN_arrumado/prs_resultado_arrumadoA1_An &
+## O output do PRS-CS são 21 arquivos (um para cada cromossomo autossomico) com o tamanho de efeito de cada variante, precisamos concatenar esses arquivos em um só e fazer o score de cada individuo com o plink
+cat prs_resultado_arrumadoA1_An_pst_eff_a1_b0.5_phiauto_chr* > prscs_resultadoAN_arrumado
+plink --bfile BHRC_Probands_Final --score ./prscsAN_arrumado/prscs_resultadoAN_arrumado 2 4 6 sum --out AN_arrumado_BHRC_Probands_prscs
+
+####### Rodando PRS-CS para OCD utilizando o painel de desequilíbrio de ligação europeu
+# GWAS utilizado foi o do PGC para sintomas obsessivos-compulsivos, e os passos para sua manipulação são semelhantes ao de ED
+
+awk '{print $2, $4, $5, $9, $10}' ocs2024obsessive-compulsive_symptoms_daner_STR_NTR_SfS_TwinsUK_strometal | tr " " "\t" > gwas_OCD_sintomas
+
+screen
+python3 ./PRScs/test_data/PRScs.py --ref_dir=./PRScs/ldblk_1kg_eur --bim_prefix=./BHRC_Probands_Final --sst_file=./gwas/gwas_OCD_sintomas --n_gwas=33943 --out_dir=./ocd_prs_resultado
+## Fazendo scores
+cat ocd_prs_resultado_pst_eff_a1_b0.5_phiauto_chr* > prscs_resultadoAN_arrumado
+plink --bfile ../BHRC_Probands_Final --score ocd_prscs_junto 2 4 6 sum --out OCD_BHRC_Probands_prscs
+

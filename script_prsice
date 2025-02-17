@@ -1,0 +1,28 @@
+#### PRSice é uma ferramenta que já fornece como output o score dos indíviduos, por isso devemos fazer separadamente para cada grupo de ED colocando os devidos arquivos de input
+
+
+#### Análises PRSice para grupo AN e BN
+## Arquivos input necessários para aplicar a ferramenta PRSice
+# Um arquivo de input com os IDs e o fenótipos da amostra alvo, que aqui se chama "BHRC_fenotipo_ANeBN.txt"
+# Um arquivo com os PCs e Sexo da amostra alvo
+plink --bfile BHRC_Probands_Final --keep BHRC_Controles_ANeBN.txt --make-bed --out BHRC_Controle__ANeBN
+plink --bfile BHRC_Controle__ANeBN --pca 10 --out arquivo_pca_ANeBN
+# Após obter os PCs dos nossos casos e controles, devemos acrescentar o sexo dos indivíduos nessa tabela: Fiz e chamei de "BHRC_Sex_pcs_ANeBN.txt"
+# Você deve sinalizar como está nomeado no arquivo GWAS cada uma das variáveis utilizadas e escolher quais valores de p-threshold serão usadas
+
+
+~/Desktop/Rafaella/PRSice.R --prsice ~/Desktop/Rafaella/PRSice_linux --thread 4 --base ../gwas/semhash_pgcAN2.2019-07.vcf.tsv --beta --snp ID --chr CHROM --bp POS --A1 ALT --A2 REF --stat BETA --pvalue PVAL --cov BHRC_Sex_pcs_ANeBN.txt --target ../BHRC_Controle__ANeBN --pheno-file BHRC_fenotipo_ANeBN.txt --out arrumadoA1_covsexpcs_bhrc_ANeBN  --extract  arrumadoA1_covsexpcs_bhrc_ANeBN.valid --all-score --fastscore --bar-levels 0.00001,0.001,0.01,0.05,0.1,0.2,0.3,0.4,0.5,1
+
+#### PRSice para grupo AN
+
+~/Desktop/Rafaella/PRSice.R --prsice ~/Desktop/Rafaella/PRSice_linux --thread 4 --base ../gwas/semhash_pgcAN2.2019-07.vcf.tsv --beta --snp ID --chr CHROM --bp POS --A1 ALT --A2 REF --stat BETA --pvalue PVAL --cov BHRC_Sex_pcs_AN.txt --target ../BHRC_Controles_AN --pheno-file BHRC_fenotipo.txt --out arrumadoA1_covsexpcs_bhrc_AN --extract arrumadoA1_covsexpcs_bhrc_AN.valid --all-score --fastscore --bar-levels 0.00001,0.001,0.01,0.05,0.1,0.2,0.3,0.4,0.5,1
+
+#### PRSice para grupo ED
+
+~/Desktop/Rafaella/PRSice.R --prsice ~/Desktop/Rafaella/PRSice_linux --thread 4 --base ../gwas/semhash_pgcAN2.2019-07.vcf.tsv --beta --snp ID --chr CHROM --bp POS --A1 ALT --A2 REF --stat BETA --pvalue PVAL --cov BHRC_Sex_pcs_ED.txt --target ../BHRC_Controles_ED --pheno-file BHRC_fenotipo_ED.txt --out arrumadoA1_covsexpcs_bhrc_ED --extract arrumadoA1_covsexpcs_bhrc_ED.valid --all-score --fastscore --bar-levels 0.00001,0.001,0.01,0.05,0.1,0.2,0.3,0.4,0.5,1
+
+#### PRSice para grupo OCD
+
+~/Desktop/Rafaella/PRSice.R --prsice ~/Desktop/Rafaella/PRSice_linux --thread 4 --base ../gwas/ocs2024obsessive-compulsive_symptoms_daner_STR_NTR_SfS_TwinsUK_strometal --beta --snp SNP --chr CHR --bp BP --A1 A1 --A2 A2 --stat OR --pvalue P --cov BHRC_Sex_pcs_OCD.txt --target ./Diego/BHRC_Controles_OCD --pheno-file BHRC_fenotipo_OCD.txt --out covsexpcs_bhrc_OCD --all-score --fastscore --bar-levels 0.00001,0.001,0.01,0.05,0.1,0.2,0.3,0.4,0.5,1
+
+
